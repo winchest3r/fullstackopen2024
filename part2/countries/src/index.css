@@ -1,0 +1,12 @@
+body {
+    margin: auto;
+}
+
+.header {
+    background-color: antiquewhite;
+    text-align: center;
+}
+
+.content {
+    padding: 0px 10px;
+}
