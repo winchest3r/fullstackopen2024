@@ -4,6 +4,29 @@ import personService from './services/persons'
 /** Function to handle all input hooks */
 const handleInput = (setValue) => (event) => setValue(event.target.value)
 
+const Notification = ({ type, message }) => {
+  if (message === null) {
+    return null
+  }
+  const noteStyle = {
+    color: 'green',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10
+  }
+  if (type === 'error') {
+    noteStyle.color = 'red'
+  }
+  return (
+    <div style={noteStyle}>
+      {message}
+    </div>
+  )
+}
+
 const Filter = ({ value, onChange }) => <>filter shown with <input value={value} onChange={handleInput(onChange)}/></>
 
 const Person = ({ name, number, handleRemove }) => {
@@ -47,6 +70,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterText, setFilterText] = useState('')
+  const [noteType, setNoteType] = useState('note')
+  const [noteMessage, setNoteMessage] = useState(null)
 
   const hook = () => {
     personService
@@ -56,6 +81,19 @@ const App = () => {
 
   useEffect(hook, [])
 
+  const sendMessage = (type, message) => {
+    setNoteType(type)
+    setNoteMessage(message)
+    setTimeout(() => {
+      setNoteMessage(null)
+    }, 2000)
+  }
+
+  const clearPersonFields = () => {
+    setNewName('')
+    setNewNumber('')
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault()
     if (newName === '') {
@@ -64,13 +102,21 @@ const App = () => {
       alert('Add a phone number to the input form')
     } else if (persons.find(p => p.name === newName && p.number === newNumber) != undefined) {
       alert(`${newName} with number ${newNumber} is already exists`)
+      clearPersonFields()
     } else if (persons.find(p => p.name === newName) != undefined) {
       const p = persons.find(p => p.name === newName)
       if (confirm(`${p.name} is already added to phonebook, replace the old number with a new one?`)) {
         personService
           .update(p.id, { ...p, number: newNumber })
-          .then((alterPerson) => setPersons(persons.map(p => p.id === alterPerson.id ? alterPerson : p)))
-      }
+          .then((alterPerson) => {
+            setPersons(persons.map(p => p.id === alterPerson.id ? alterPerson : p))
+            clearPersonFields()
+            sendMessage('note', 'Replaced ' + p.name)
+          })
+          .catch((error) => {
+            sendMessage('error', `Information of ${p.name} has already been removed from the server`)
+          })
+        }
     } else {
       const personObject = {
         name: newName,
@@ -80,10 +126,10 @@ const App = () => {
         .create(personObject)
         .then((newPerson) => {
           setPersons(persons.concat(newPerson))
+          clearPersonFields()
+          sendMessage('note', 'Added ' + personObject.name)
       })
     }
-    setNewName('')
-    setNewNumber('')
   }
 
   const handleRemove = (person) => () => {
@@ -92,6 +138,10 @@ const App = () => {
         .remove(person.id)
         .then((removedPerson) => {
           setPersons(persons.filter(p => p.id !== removedPerson.id))
+          sendMessage('note', person.name + 'has been deleted')
+        })
+        .catch((error) => {
+          sendMessage('error', `Information of ${person.name} has already been removed from the server`)
         })
     }
   }
@@ -99,6 +149,7 @@ const App = () => {
   return (
     <>
       <h1>Phonebook</h1>
+      <Notification type={noteType} message={noteMessage} />
       <Filter value={filterText} onChange={setFilterText} />
       <h2>add a new</h2>
       <PersonForm submit={handleSubmit} name={newName} setName={setNewName} number={newNumber} setNumber={setNewNumber} />
