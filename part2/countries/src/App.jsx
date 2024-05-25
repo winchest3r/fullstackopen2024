@@ -17,8 +17,7 @@ const ListItem = ({ name, handler }) => {
   )
 }
 
-const CountryItem = ({ country }) => {
-  console.log(country);
+const CountryItem = ({ country, weather }) => {
   return (
     <>
       <h2>{country.name.common}</h2>
@@ -30,7 +29,15 @@ const CountryItem = ({ country }) => {
           l => <li key={l}>{l}</li>
         )}
       </ul>
-      <img src={country.flags.svg} alt={country.flags.alt} width="30%" />
+      <img src={country.flags.svg} alt={country.flags.alt} width="25%" />
+      <h3>Weather in {country.capital}</h3>
+      <img 
+        src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`} 
+        alt={weather.weather[0].description}
+      />
+      <p>temperature {weather.main.temp} °C</p>
+      <p>wind {weather.wind.speed} m/s</p>
+      <p>humidity {weather.main.humidity} %</p>
     </>
   )
 }
@@ -56,6 +63,7 @@ const App = () => {
   const [filterText, setFilterText] = useState('')
   const [filteredCountries, setFilteredCountries] = useState([])
   const [currentCountry, setCurrentCountry] = useState({})
+  const [currentWeather, setCurrentWeather] = useState({})
 
   useEffect(() => {
     service
@@ -74,13 +82,23 @@ const App = () => {
       c => c.toLowerCase().includes(text.toLowerCase())
     )
     if (newList.length === 1) {
-      service
-        .getCountryData(newList[0])
-        .then(data => {
-          setCurrentCountry(data)
-          setFilterText(text);
-          setFilteredCountries(newList);
-        })
+      // get country data only once if filter shows the same
+      if (newList[0] === filteredCountries[0]) {
+        setFilterText(text)
+      } else {
+        service
+          .getCountryData(newList[0])
+          .then(data => {
+            service
+              .getWeatherData(data.capitalInfo.latlng[0], data.capitalInfo.latlng[1])
+              .then(weather => {
+                setCurrentCountry(data)
+                setCurrentWeather(weather)
+                setFilterText(text);
+                setFilteredCountries(newList);
+              })
+          })
+      }
     } else {
       setCurrentCountry({})
       setFilterText(text);
@@ -99,7 +117,13 @@ const App = () => {
   }
 
   if (!countries) {
-    return null
+    return (
+      <>
+        <div className='header'>
+          <h1>Data for countries</h1>
+        </div>
+      </>
+    )
   }
 
   return (
@@ -111,7 +135,7 @@ const App = () => {
         <Filter text={filterText} handler={filterHandler}/>
         {
           filteredCountries.length === 1 ? 
-          <CountryItem country={currentCountry} /> :
+          <CountryItem country={currentCountry} weather={currentWeather} /> :
           <CountriesList data={filteredCountries} buttonHandler={buttonHandler} />
         }
       </div>
