@@ -136,8 +136,8 @@ const App = () => {
     if (confirm(`Delete ${person.name} with number ${person.number}?`)) {
       personService
         .remove(person.id)
-        .then((removedPerson) => {
-          setPersons(persons.filter(p => p.id !== removedPerson.id))
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== person.id))
           sendMessage('note', person.name + 'has been deleted')
         })
         .catch((error) => {
