@@ -114,7 +114,7 @@ const App = () => {
             sendMessage('note', 'Replaced ' + p.name)
           })
           .catch((error) => {
-            sendMessage('error', `Information of ${p.name} has already been removed from the server`)
+            sendMessage('error', error.response.data.error)
           })
         }
     } else {
@@ -128,7 +128,10 @@ const App = () => {
           setPersons(persons.concat(newPerson))
           clearPersonFields()
           sendMessage('note', 'Added ' + personObject.name)
-      })
+        })
+        .catch(error => {
+          sendMessage('error', error.response.data.error)
+        })
     }
   }
 
@@ -141,7 +144,7 @@ const App = () => {
           sendMessage('note', person.name + 'has been deleted')
         })
         .catch((error) => {
-          sendMessage('error', `Information of ${person.name} has already been removed from the server`)
+          sendMessage('error', error.response.data.error)
         })
     }
   }
