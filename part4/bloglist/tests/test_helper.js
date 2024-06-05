@@ -1,4 +1,5 @@
 const Blog = require('../models/blog');
+const User = require('../models/user');
 
 // Blogs for tests from https://github.com/fullstack-hy2020/misc/blob/master/blogs_for_test.md
 const initialBlogs = [
@@ -53,8 +54,8 @@ const initialBlogs = [
 ];
 
 const getBlogsInDB = async () => {
-    const blogs = await Blog.find({})
-    return blogs.map(blog => blog.toJSON())
+    const blogs = await Blog.find({});
+    return blogs.map(blog => blog.toJSON());
 };
 
 const findBlog = (blogs, sought) => {
@@ -66,8 +67,14 @@ const findBlog = (blogs, sought) => {
     ));
 }
 
+const getUsersInDB = async () => {
+    const users = await User.find({});
+    return users.map(user => user.toJSON());
+};
+
 module.exports = {
     initialBlogs,
     getBlogsInDB,
     findBlog,
+    getUsersInDB,
 };
