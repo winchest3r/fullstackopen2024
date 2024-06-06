@@ -11,10 +11,10 @@ const helper = require('./test_helper');
 const Blog = require('../models/blog');
 const User = require('../models/user');
 
-const getRootToken = async () => {
+const getToken = async (name) => {
     const response = await api
         .post('/api/login')
-        .send({ username: 'root', password: 'root' });
+        .send({ username: name, password: name });
     
     return response.body.token || null;
 }
@@ -29,8 +29,21 @@ beforeEach(async () => {
     });
     await user.save();
 
+    const passwordHash2 = await bcrypt.hash('admin', 10);
+    const user2 = new User({
+        username: 'admin',
+        name: 'admin',
+        passwordHash: passwordHash2
+    });
+    await user2.save();
+
+    const root = await User.findOne({ username: 'root' });
+
     await Blog.deleteMany({});
-    await Blog.insertMany(helper.initialBlogs);
+
+    const updatedBlogs = helper.getInitialBlogs(root);
+
+    await Blog.insertMany(updatedBlogs);
 });
 
 describe('testing of blog api', () => {
@@ -58,7 +71,7 @@ describe('testing of blog api', () => {
                 likes: 1,
             };
 
-            const token = await getRootToken();
+            const token = await getToken('root');
 
             await api
                 .post('/api/blogs')
@@ -79,7 +92,7 @@ describe('testing of blog api', () => {
                 url: 'http://example.com/title-without-likes'
             };
 
-            const token = await getRootToken();
+            const token = await getToken('root');
 
             await api
                 .post('/api/blogs')
@@ -97,7 +110,7 @@ describe('testing of blog api', () => {
         });
 
         test('post an invalid data', async () => {
-            const token = await getRootToken();
+            const token = await getToken('root');
 
             await api
                 .post('/api/blogs')
@@ -120,20 +133,41 @@ describe('testing of blog api', () => {
             const blogsAtStart = await helper.getBlogsInDB();
             const removedBlog = blogsAtStart.pop();
 
+            const token = await getToken('root');
+
             await api
                 .delete(`/api/blogs/${removedBlog.id}`)
+                .set('Authorization', 'Bearer ' + token)
                 .expect(204);
 
             const blogsAtEnd = await helper.getBlogsInDB();
+
+            // equal length because one was poped at start
             assert.strictEqual(blogsAtStart.length, blogsAtEnd.length);
         });
 
         test('delete non existed blog', async () => {
+            const token = await getToken('root');
+
             const someId = '12ljadf1234adsfpa';
 
             await api
                 .delete(`/api/blogs/${someId}`)
+                .set('Authorization', 'Bearer ' + token)
                 .expect(400);
+        });
+
+        test('try to delete a blog unrelated to user', async () => {
+            const blogsAtStart = await helper.getBlogsInDB();
+            const removedBlog = blogsAtStart.pop();
+
+            const token = await getToken('admin');
+
+            await api
+                .delete(`/api/blogs/${removedBlog.id}`)
+                .set('Authorization', 'Bearer ' + token)
+                .expect(401)
+                .expect('Content-Type', /application\/json/);
         });
     });
 
@@ -144,10 +178,10 @@ describe('testing of blog api', () => {
             blogToUpdate.likes += 999;
             
             await api
-            .put(`/api/blogs/${blogToUpdate.id}`)
-            .send(blogToUpdate)
-            .expect(200)
-            .expect('Content-Type', /application\/json/);
+                .put(`/api/blogs/${blogToUpdate.id}`)
+                .send(blogToUpdate)
+                .expect(200)
+                .expect('Content-Type', /application\/json/);
             
             const blogsAtEnd = await helper.getBlogsInDB();
             assert(helper.findBlog(blogsAtEnd, blogToUpdate));
@@ -163,7 +197,7 @@ describe('testing of user api', () => {
         .expect('Content-Type', /application\/json/);
         
         const users = await helper.getUsersInDB();
-        assert.strictEqual(users.length, 1);
+        assert.strictEqual(users.length, 2);
         
         const usernames = users.map(u => u.username);
         assert(usernames.includes('root'));
