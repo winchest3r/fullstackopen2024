@@ -11,18 +11,26 @@ const helper = require('./test_helper');
 const Blog = require('../models/blog');
 const User = require('../models/user');
 
-beforeEach(async () => {
-    await Blog.deleteMany({});
-    await Blog.insertMany(helper.initialBlogs);
+const getRootToken = async () => {
+    const response = await api
+        .post('/api/login')
+        .send({ username: 'root', password: 'root' });
+    
+    return response.body.token || null;
+}
 
+beforeEach(async () => {
     await User.deleteMany({});
     const passwordHash = await bcrypt.hash('root', 10);
     const user = new User({
         username: 'root',
         name: 'superuser',
-        password: passwordHash
+        passwordHash: passwordHash
     });
     await user.save();
+
+    await Blog.deleteMany({});
+    await Blog.insertMany(helper.initialBlogs);
 });
 
 describe('testing of blog api', () => {
@@ -50,8 +58,11 @@ describe('testing of blog api', () => {
                 likes: 1,
             };
 
+            const token = await getRootToken();
+
             await api
                 .post('/api/blogs')
+                .set('Authorization', 'Bearer ' + token)
                 .send(newBlog)
                 .expect(201)
                 .expect('Content-Type', /application\/json/);
@@ -68,8 +79,11 @@ describe('testing of blog api', () => {
                 url: 'http://example.com/title-without-likes'
             };
 
+            const token = await getRootToken();
+
             await api
                 .post('/api/blogs')
+                .set('Authorization', 'Bearer ' + token)
                 .send(newBlog)
                 .expect(201)
                 .expect('Content-Type', /application\/json/);
@@ -83,14 +97,18 @@ describe('testing of blog api', () => {
         });
 
         test('post an invalid data', async () => {
+            const token = await getRootToken();
+
             await api
                 .post('/api/blogs')
+                .set('Authorization', 'Bearer ' + token)
                 .send({ title: 'data without url' })
                 .expect(400)
                 .expect('Content-Type', /application\/json/);
             
             await api
                 .post('/api/blogs')
+                .set('Authorization', 'Bearer ' + token)
                 .send({ url: 'http://data-without-title.com'})
                 .expect(400)
                 .expect('Content-Type', /application\/json/);
@@ -182,6 +200,33 @@ describe('testing of user api', () => {
         
         const usersAtEnd = await helper.getUsersInDB();
         assert(result.body.error.includes('expected `username` to be unique'));
+        assert.strictEqual(usersAtStart.length, usersAtEnd.length);
+    });
+
+    test('post invalid username or password', async () => {
+        const usersAtStart = await helper.getUsersInDB();
+
+        // short login
+        await api
+            .post('/api/users')
+            .send({ username: 'yo', password: 'long_enough' })
+            .expect(400)
+            .expect('Content-Type', /application\/json/);
+
+        // forbidden characters in login
+        await api
+            .post('/api/users')
+            .send({ username: '=+b[a]d-nAm[e]+=', password: 'long_enough' })
+            .expect(400)
+            .expect('Content-Type', /application\/json/);
+
+        await api
+            .post('/api/users')
+            .send({ username: 'long_enough', password: 'yo' })
+            .expect(400)
+            .expect('Content-Type', /application\/json/);
+
+        const usersAtEnd = await helper.getUsersInDB();
         assert.strictEqual(usersAtStart.length, usersAtEnd.length);
     });
 });
