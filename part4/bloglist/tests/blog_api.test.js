@@ -47,7 +47,7 @@ beforeEach(async () => {
 });
 
 describe('testing of blog api', () => {
-    describe('get data tests', () => {
+    describe('get blogs from database', () => {
         test('correct amount of blog posts in json format', async () => {
             const blogs = await helper.getBlogsInDB();
 
@@ -60,7 +60,7 @@ describe('testing of blog api', () => {
         });
     });
 
-    describe('post data tests', () => {
+    describe('post a blog to database', () => {
         test('post a valid blog to database', async () => {
             const blogsAtStart = await helper.getBlogsInDB();
 
@@ -85,7 +85,7 @@ describe('testing of blog api', () => {
             assert(helper.findBlog(blogsAtEnd, newBlog));
         });
 
-        test('insert likes in data without them', async () => {
+        test('add likes in a blog without them', async () => {
             const newBlog = {
                 title: 'Title without likes',
                 author: 'evgenii',
@@ -109,7 +109,7 @@ describe('testing of blog api', () => {
             assert(helper.findBlog(blogsAtEnd, newBlogWithLikes));
         });
 
-        test('post an invalid data', async () => {
+        test('post an invalid blog', async () => {
             const token = await getToken('root');
 
             await api
@@ -128,8 +128,8 @@ describe('testing of blog api', () => {
         });
     });
     
-    describe('delete data tests', () => {
-        test('delete existed blog', async () => {
+    describe('delete a blog from database', () => {
+        test('delete an existed blog', async () => {
             const blogsAtStart = await helper.getBlogsInDB();
             const removedBlog = blogsAtStart.pop();
 
@@ -171,14 +171,17 @@ describe('testing of blog api', () => {
         });
     });
 
-    describe('update data tests', () => {
+    describe('update a blog in database', () => {
         test('update likes', async () => {
             const blogsAtStart = await helper.getBlogsInDB();
             const blogToUpdate = blogsAtStart[0];
             blogToUpdate.likes += 999;
             
+            const token = await getToken('root');
+
             await api
                 .put(`/api/blogs/${blogToUpdate.id}`)
+                .set('Authorization', 'Bearer ' + token)
                 .send(blogToUpdate)
                 .expect(200)
                 .expect('Content-Type', /application\/json/);
