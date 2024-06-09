@@ -1,7 +1,7 @@
 const Blog = ({ blog }) => {
     return (
         <>
-            <a href={blog.url}>{blog.title} - {blog.author} [likes: {blog.likes}]</a> 
+            <a href={blog.url}>{blog.title} - {blog.author}</a>
         </>
     );
 };
