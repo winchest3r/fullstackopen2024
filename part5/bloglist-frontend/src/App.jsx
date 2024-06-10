@@ -23,7 +23,7 @@ const App = () => {
     blogService
       .getAll()
       .then(blogs => setBlogs(blogs.toSorted((a, b) => b.likes - a.likes)));
-  }
+  };
 
   useEffect(updateList, []);
 
@@ -43,7 +43,7 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault();
-  
+
     try {
       const user = await loginService.login({ username, password });
       window.localStorage.setItem('loggedUser', JSON.stringify(user));
@@ -62,9 +62,9 @@ const App = () => {
     window.localStorage.removeItem('loggedUser');
     setUser(null);
     blogService.setToken('');
-    notifyMessage('you are successfully logged out')
+    notifyMessage('you are successfully logged out');
   };
-  
+
   const createBlog = async (blogObject) => {
     blogFormRef.current.toggleVisibility();
     try {
@@ -76,7 +76,7 @@ const App = () => {
       notifyMessage(exception.response.data.error, 'error');
     }
   };
-  
+
   const loginForm = () => {
     return (
       <>
@@ -84,21 +84,21 @@ const App = () => {
         <form onSubmit={handleLogin}>
           <div>
             username
-            <input 
-              type="text" 
-              value={username} 
-              name="Username" 
+            <input
+              type="text"
+              value={username}
+              name="Username"
               onChange={event => setUsername(event.target.value)}
-              />
+            />
           </div>
           <div>
             password
-            <input 
+            <input
               type="password"
               value={password}
               name="Password"
               onChange={event => setPassword(event.target.value)}
-              />
+            />
           </div>
           <button type="submit">login</button>
         </form>
@@ -114,13 +114,13 @@ const App = () => {
           {user.name} is logged in
           <button onClick={handleLogout}>logout</button>
         </p>
-        {blogs.map(b => <Blog 
-          key={b.id} 
-          blog={b} 
+        {blogs.map(b => <Blog
+          key={b.id}
+          blog={b}
           updateList={updateList}
           remove={b.user.username === user.username}
         />)}
-        <Togglable buttonLabel={"new blog"} ref={blogFormRef}>
+        <Togglable buttonLabel={'new blog'} ref={blogFormRef}>
           <BlogForm createBlog={createBlog} />
         </Togglable>
       </>
