@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import blogService from './services/blogs';
 import loginService from './services/login';
 
 import Blog from './components/Blog';
-import NewBlogForm from './components/NewBlogForm';
+import BlogForm from './components/BlogForm';
 import Notification from './components/Notification';
+import Togglable from './components/Togglable';
 
 const App = () => {
   const [ user, setUser ] = useState(null);
@@ -14,17 +15,17 @@ const App = () => {
   const [ username, setUsername ] = useState('');
   const [ password, setPassword ] = useState('');
 
-  const [ title, setTitle ] = useState('');
-  const [ author, setAuthor ] = useState('');
-  const [ url, setUrl ] = useState('');
-
   const [ info, setInfo ] = useState({ message: null });
 
-  useEffect(() => {
+  const blogFormRef = useRef();
+
+  const updateList = () => {
     blogService
       .getAll()
-      .then(blogs => setBlogs(blogs));
-  }, []);
+      .then(blogs => setBlogs(blogs.toSorted((a, b) => b.likes - a.likes)));
+  }
+
+  useEffect(updateList, []);
 
   useEffect(() => {
     const userJSON = window.localStorage.getItem('loggedUser');
@@ -38,7 +39,7 @@ const App = () => {
   const notifyMessage = (message, type='info') => {
     setInfo({ message, type });
     setTimeout(() => setInfo({ message: null }), 3000);
-  }
+  };
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -55,36 +56,30 @@ const App = () => {
 
     setUsername('');
     setPassword('');
-  }
+  };
 
   const handleLogout = () => {
     window.localStorage.removeItem('loggedUser');
     setUser(null);
     blogService.setToken('');
     notifyMessage('you are successfully logged out')
-  }
-
-  const addBlog = async (event) => {
-    event.preventDefault();
-
+  };
+  
+  const createBlog = async (blogObject) => {
+    blogFormRef.current.toggleVisibility();
     try {
-      const newBlog = await blogService.add({ title, author, url });
+      const newBlog = await blogService.add(blogObject);
       setBlogs(blogs.concat(newBlog));
-
       notifyMessage(`a new blog ${newBlog.title} added`);
-
-      setTitle('');
-      setAuthor('');
-      setUrl('');
+      updateList();
     } catch (exception) {
       notifyMessage(exception.response.data.error, 'error');
     }
-  }
-
-  if (user === null) {
+  };
+  
+  const loginForm = () => {
     return (
       <>
-        <Notification info={info}/>
         <h2>Log into Bloglist</h2>
         <form onSubmit={handleLogin}>
           <div>
@@ -94,7 +89,7 @@ const App = () => {
               value={username} 
               name="Username" 
               onChange={event => setUsername(event.target.value)}
-            />
+              />
           </div>
           <div>
             password
@@ -103,35 +98,41 @@ const App = () => {
               value={password}
               name="Password"
               onChange={event => setPassword(event.target.value)}
-            />
+              />
           </div>
           <button type="submit">login</button>
         </form>
       </>
     );
-  } else {
+  };
+
+  const bloglistForm = () => {
     return (
       <>
-        <Notification info={info}/>
         <h2>Bloglist</h2>
-        <p>{user.name} is logged in</p>
-        <button onClick={handleLogout}>logout</button>
-        <ul>
-          {blogs.map(b => <li key={b.id}><Blog blog={b} /></li>)}
-        </ul>
-        <h2>create new</h2>
-        <NewBlogForm 
-          addBlog={addBlog}
-          title={title}
-          author={author}
-          url={url}
-          setTitle={setTitle}
-          setAuthor={setAuthor}
-          setUrl={setUrl}
-        />
+        <p>
+          {user.name} is logged in
+          <button onClick={handleLogout}>logout</button>
+        </p>
+        {blogs.map(b => <Blog 
+          key={b.id} 
+          blog={b} 
+          updateList={updateList}
+          remove={b.user.username === user.username}
+        />)}
+        <Togglable buttonLabel={"new blog"} ref={blogFormRef}>
+          <BlogForm createBlog={createBlog} />
+        </Togglable>
       </>
     );
-  }
+  };
+
+  return (
+    <>
+      <Notification info={info} />
+      {user === null ? loginForm() : bloglistForm()}
+    </>
+  );
 };
 
 export default App;
