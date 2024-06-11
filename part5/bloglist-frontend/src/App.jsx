@@ -106,6 +106,23 @@ const App = () => {
     );
   };
 
+  const handleLikes = (blog) => async () => {
+    const blogToUpdate = {
+      ...blog,
+      likes: blog.likes + 1,
+      user: blog.user.id
+    };
+    await blogService.update(blogToUpdate);
+    updateList();
+  };
+
+  const handleRemove = (blog) => async () => {
+    if (window.confirm('Remove blog ' + blog.title)) {
+      await blogService.remove(blog);
+      updateList();
+    }
+  };
+
   const bloglistForm = () => {
     return (
       <>
@@ -117,8 +134,9 @@ const App = () => {
         {blogs.map(b => <Blog
           key={b.id}
           blog={b}
-          updateList={updateList}
-          remove={b.user.username === user.username}
+          update={handleLikes(b)}
+          canRemove={b.user.username === user.username}
+          remove={handleRemove(b)}
         />)}
         <Togglable buttonLabel={'new blog'} ref={blogFormRef}>
           <BlogForm createBlog={createBlog} />

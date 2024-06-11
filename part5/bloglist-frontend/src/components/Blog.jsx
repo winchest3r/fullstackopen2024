@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import blogService from '../services/blogs';
 import PropTypes from 'prop-types';
 
-const Blog = ({ blog, updateList, remove }) => {
+const Blog = ({ blog, update, canRemove, remove }) => {
   const [full, setFull] = useState(false);
-  const [likes, setLikes] = useState(blog.likes);
 
   const blogStyle = {
     paddingTop: 10,
@@ -26,34 +24,16 @@ const Blog = ({ blog, updateList, remove }) => {
     );
   };
 
-  const handleLikes = async () => {
-    const blogToUpdate = {
-      ...blog,
-      likes: likes + 1,
-      user: blog.user.id
-    };
-    await blogService.update(blogToUpdate);
-    setLikes(likes + 1);
-    updateList();
-  };
-
-  const handleRemove = async () => {
-    if (window.confirm('Remove blog ' + blog.title)) {
-      await blogService.remove(blog);
-      updateList();
-    }
-  };
-
   const fullView = () => {
     return (
       <>
         {blog.title} - {blog.author}
         <button onClick={toggleView}>hide</button><br />
         <a href={blog.url}>{blog.url}</a><br />
-                likes {likes}
-        <button onClick={handleLikes}>like</button><br />
+                likes {blog.likes}
+        <button onClick={update}>like</button><br />
         {blog.user.name}<br />
-        {remove ? <button onClick={handleRemove}>remove</button> : ''}
+        {canRemove ? <button onClick={remove}>remove</button> : ''}
       </>
     );
   };
@@ -76,8 +56,9 @@ Blog.propTypes = {
       name: PropTypes.string.isRequired,
     })
   }),
-  updateList: PropTypes.func.isRequired,
-  remove: PropTypes.bool.isRequired,
+  update: PropTypes.func.isRequired,
+  canRemove: PropTypes.bool.isRequired,
+  remove: PropTypes.func.isRequired,
 };
 
 export default Blog;
