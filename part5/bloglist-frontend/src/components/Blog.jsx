@@ -29,9 +29,17 @@ const Blog = ({ blog, update, canRemove, remove }) => {
       <>
         {blog.title} - {blog.author}
         <button onClick={toggleView}>hide</button><br />
-        <a href={blog.url}>{blog.url}</a><br />
-                likes {blog.likes}
-        <button onClick={update}>like</button><br />
+        {blog.url ?
+          <>
+            <a href={blog.url}>{blog.url}</a><br />
+          </>
+          : ''}
+        {blog.likes ?
+          <>
+            likes {blog.likes}
+            <button onClick={update}>like</button><br />
+          </>
+          : ''}
         {blog.user.name}<br />
         {canRemove ? <button onClick={remove}>remove</button> : ''}
       </>
@@ -49,16 +57,16 @@ Blog.propTypes = {
   blog: PropTypes.shape({
     title: PropTypes.string.isRequired,
     author: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
-    likes: PropTypes.number.isRequired,
+    url: PropTypes.string,
+    likes: PropTypes.number,
     user: PropTypes.shape({
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
     })
   }),
-  update: PropTypes.func.isRequired,
-  canRemove: PropTypes.bool.isRequired,
-  remove: PropTypes.func.isRequired,
+  update: PropTypes.func,
+  canRemove: PropTypes.bool,
+  remove: PropTypes.func,
 };
 
 export default Blog;
