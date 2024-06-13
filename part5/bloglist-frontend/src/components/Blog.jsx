@@ -29,12 +29,12 @@ const Blog = ({ blog, update, canRemove, remove }) => {
       <>
         {blog.title} - {blog.author}
         <button onClick={toggleView}>hide</button><br />
-        {blog.url ?
+        {blog.url !== undefined ?
           <>
             <a href={blog.url}>{blog.url}</a><br />
           </>
           : ''}
-        {blog.likes ?
+        {blog.likes !== undefined ?
           <>
             likes {blog.likes}
             <button onClick={update}>like</button><br />
