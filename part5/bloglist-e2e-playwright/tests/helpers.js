@@ -10,6 +10,20 @@ const addBlog = async (page, title, author, url) => {
     await page.getByPlaceholder('author').fill(author);
     await page.getByPlaceholder('url').fill(url);
     await page.getByRole('button', { name: 'add' }).click();
+    await page.getByText(`${title} - ${author}`).waitFor();
+};
+
+const addLikes = async (page, blog, likes) => {
+    const closedBlog = await page.getByText(`${blog.title} - ${blog.author}`);
+    await closedBlog.waitFor();
+
+    await closedBlog.getByRole('button', { name: 'view' }).click();
+
+    for (let i = 0; i < likes; ++i) {
+        const openedBlog = await page.getByText(`${blog.title} - ${blog.author}`);
+        await openedBlog.getByRole('button', { name: 'like' }).click();
+        await page.waitForTimeout(500);
+    }
 };
 
 const threeBlogs = [
@@ -30,4 +44,4 @@ const threeBlogs = [
     }
 ];
 
-export { loginWith, addBlog, threeBlogs }
+export { loginWith, addBlog, threeBlogs, addLikes }

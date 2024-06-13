@@ -47,7 +47,7 @@ const Blog = ({ blog, update, canRemove, remove }) => {
   };
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} data-testid='blog'>
       {full ? fullView() : shortView()}
     </div>
   );
