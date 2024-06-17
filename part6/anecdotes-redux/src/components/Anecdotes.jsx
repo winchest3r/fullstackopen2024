@@ -18,11 +18,18 @@ const Anecdote = ({ anecdote, clickHandler}) => {
 
 const Anecdotes = () => {
     const dispatch = useDispatch();
-    const anecdotes = useSelector(state => state.sort((a, b) => b.votes - a.votes));
+    const anecdotes = useSelector(state => {
+        const data = state.anecdotes;
+        if (state.filter !== '') {
+            return data.filter(a => a.content.toLowerCase().includes(state.filter));
+        }
+        return data;
+    });
+
+    anecdotes.sort((a, b) => b.votes - a.votes);
 
     return (
         <>
-            <h2>Anecdotes</h2>
             {anecdotes.map(anecdote =>
                 <Anecdote 
                     key={anecdote.id}
