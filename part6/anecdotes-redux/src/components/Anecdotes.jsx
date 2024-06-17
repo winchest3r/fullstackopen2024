@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { voteTo } from '../reducers/anecdoteReducer';
+import { changeNotification } from '../reducers/notificationReducer';
 import PropTypes from 'prop-types';
 
 const Anecdote = ({ anecdote, clickHandler}) => {
@@ -26,15 +27,18 @@ const Anecdotes = () => {
         return data;
     });
 
-    anecdotes.sort((a, b) => b.votes - a.votes);
+    const sortedAnecdotes = anecdotes.toSorted((a, b) => b.votes - a.votes);
 
     return (
         <>
-            {anecdotes.map(anecdote =>
+            {sortedAnecdotes.map(anecdote =>
                 <Anecdote 
                     key={anecdote.id}
                     anecdote={anecdote}
-                    clickHandler={() => dispatch(voteTo(anecdote.id))}
+                    clickHandler={() => {
+                        dispatch(changeNotification(`you voted '${anecdote.content}'`))
+                        dispatch(voteTo(anecdote.id))
+                    }}
                 />
             )}
         </>
