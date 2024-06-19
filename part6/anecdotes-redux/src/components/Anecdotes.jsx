@@ -1,8 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { voteTo } from '../reducers/anecdoteReducer';
-import { changeNotification } from '../reducers/notificationReducer';
+import { setNotification } from '../reducers/notificationReducer';
 import PropTypes from 'prop-types';
-import anecdoteService from '../services/anecdotes';
 
 const Anecdote = ({ anecdote, clickHandler}) => {
     return (
@@ -36,14 +35,9 @@ const Anecdotes = () => {
                 <Anecdote 
                     key={anecdote.id}
                     anecdote={anecdote}
-                    clickHandler={async () => {
-                        const newAnecdote = await anecdoteService.update(anecdote.id, {
-                            content: anecdote.content,
-                            id: anecdote.id,
-                            votes: anecdote.votes + 1
-                        });
-                        dispatch(changeNotification(`you voted '${newAnecdote.content}'`));
-                        dispatch(voteTo(newAnecdote.id));
+                    clickHandler={() => {
+                        dispatch(setNotification(`you voted '${anecdote.content}'`));
+                        dispatch(voteTo(anecdote));
                     }}
                 />
             )}
