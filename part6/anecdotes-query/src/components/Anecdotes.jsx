@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateAnecdote } from '../requests';
 import PropTypes from 'prop-types';
+import { useNotificationContextDispatch } from './NotificationContext';
 
 const Anecdote = ({ anecdote, voteHandler }) => {
     return (
@@ -26,6 +27,7 @@ Anecdote.propTypes = {
 
 const Anecdotes = ({ anecdotes }) => {
     const queryClient = useQueryClient();
+    const notificationDispatch = useNotificationContextDispatch();
     
     const updateAnecdoteMutation = useMutation({
         mutationFn: updateAnecdote,
@@ -33,9 +35,14 @@ const Anecdotes = ({ anecdotes }) => {
             const anecdotes = queryClient.getQueryData(['anecdotes']);
             queryClient.setQueryData(['anecdotes'], anecdotes.map(anecdote =>
                 anecdote.id !== updatedAnecdote.id ? anecdote : updatedAnecdote
-            ));
+            ).toSorted((a, b) => b.votes - a.votes));
+            notificationDispatch({ 
+                type: 'MSG', 
+                payload: `voted ${updatedAnecdote.content}`
+            });
         }
     });
+
 
     const handleVote = (anecdote) => () => {
         const updatedAnecdote = {
