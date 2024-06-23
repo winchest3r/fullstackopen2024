@@ -26,7 +26,12 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   user.blogs = user.blogs.concat(savedBlog._id);
   await user.save();
 
-  response.status(201).json(savedBlog);
+  const populatedBlog = await savedBlog.populate('user', {
+    username: 1,
+    name: 1,
+  });
+
+  response.status(201).json(populatedBlog);
 });
 
 blogsRouter.delete(
@@ -47,6 +52,15 @@ blogsRouter.delete(
   }
 );
 
+blogsRouter.get('/:id', middleware.userExtractor, async (request, response) => {
+  const blog = await Blog.findById(request.params.id).populate('user', {
+    username: 1,
+    name: 1,
+  });
+
+  response.json(blog);
+});
+
 blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   const { title, author, url, likes, user } = request.body;
 
@@ -55,7 +69,13 @@ blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
     { title, author, url, likes, user },
     { new: true, runValidators: true }
   );
-  response.json(updatedBlog);
+
+  const populatedBlog = await updatedBlog.populate('user', {
+    username: 1,
+    name: 1,
+  });
+
+  response.json(populatedBlog);
 });
 
 module.exports = blogsRouter;

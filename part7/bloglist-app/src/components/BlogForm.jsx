@@ -1,18 +1,25 @@
-import { useState } from 'react';
+import { createBlog } from '../slices/blogsSlice';
+import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 
-const BlogForm = ({ createBlog }) => {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [url, setUrl] = useState('');
+const BlogForm = ({ toggleVisibility }) => {
+  const dispatch = useDispatch();
 
-  const addBlog = (event) => {
+  const addBlog = async (event) => {
     event.preventDefault();
-    createBlog({ title, author, url });
 
-    setTitle('');
-    setAuthor('');
-    setUrl('');
+    toggleVisibility();
+
+    const title = event.target.title.value;
+    const author = event.target.author.value;
+    const url = event.target.url.value;
+
+    event.target.title.value = '';
+    event.target.author.value = '';
+    event.target.url.value = '';
+
+    const blogObject = { title, author, url };
+    dispatch(createBlog(blogObject));
   };
 
   return (
@@ -20,25 +27,13 @@ const BlogForm = ({ createBlog }) => {
       <h2>Create a new blog</h2>
       <form onSubmit={addBlog}>
         <div>
-          <input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="title"
-          />
+          <input name="title" placeholder="title" />
         </div>
         <div>
-          <input
-            value={author}
-            onChange={(event) => setAuthor(event.target.value)}
-            placeholder="author"
-          />
+          <input name="author" placeholder="author" />
         </div>
         <div>
-          <input
-            value={url}
-            onChange={(event) => setUrl(event.target.value)}
-            placeholder="url"
-          />
+          <input name="url" placeholder="url" />
         </div>
         <button type="submit">add</button>
       </form>
@@ -47,7 +42,7 @@ const BlogForm = ({ createBlog }) => {
 };
 
 BlogForm.propTypes = {
-  createBlog: PropTypes.func.isRequired,
+  toggleVisibility: PropTypes.func,
 };
 
 export default BlogForm;

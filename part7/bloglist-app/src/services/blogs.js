@@ -43,9 +43,19 @@ const remove = async (blogToRemove) => {
   });
 };
 
+const get = async (id) => {
+  const response = await axios.get(`${baseUrl}/${id}`, {
+    headers: {
+      Authorization: token,
+    },
+  });
+  return response.data;
+};
+
 export default {
   setToken,
   getAll,
+  get,
   add,
   update,
   remove,

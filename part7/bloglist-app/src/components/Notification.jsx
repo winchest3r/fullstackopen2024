@@ -1,8 +1,10 @@
-import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
-const Notification = ({ info }) => {
-  if (!info.message) {
-    return;
+const Notification = () => {
+  const info = useSelector(({ notification }) => notification);
+
+  if (!info) {
+    return null;
   }
 
   const style = {
@@ -16,13 +18,6 @@ const Notification = ({ info }) => {
   };
 
   return <div style={style}>{info.message}</div>;
-};
-
-Notification.propTypes = {
-  info: PropTypes.shape({
-    message: PropTypes.string.isRequired,
-    type: PropTypes.string,
-  }),
 };
 
 export default Notification;
