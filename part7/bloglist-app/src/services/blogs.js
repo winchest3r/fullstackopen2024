@@ -52,6 +52,19 @@ const get = async (id) => {
   return response.data;
 };
 
+const addComment = async (id, content) => {
+  const response = await axios.post(
+    `${baseUrl}/${id}/comments`,
+    { content },
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  );
+  return response.data;
+};
+
 export default {
   setToken,
   getAll,
@@ -59,4 +72,5 @@ export default {
   add,
   update,
   remove,
+  addComment,
 };

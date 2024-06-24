@@ -3,9 +3,12 @@ const middleware = require('../utils/middleware');
 
 const Blog = require('../models/blog');
 const User = require('../models/user');
+const Comment = require('../models/comment');
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 });
+  const blogs = await Blog.find({})
+    .populate('user', { username: 1, name: 1 })
+    .populate('comments', { content: 1 });
   response.json(blogs);
 });
 
@@ -53,10 +56,12 @@ blogsRouter.delete(
 );
 
 blogsRouter.get('/:id', middleware.userExtractor, async (request, response) => {
-  const blog = await Blog.findById(request.params.id).populate('user', {
-    username: 1,
-    name: 1,
-  });
+  const blog = await Blog.findById(request.params.id)
+    .populate('user', {
+      username: 1,
+      name: 1,
+    })
+    .populate('comments', { content: 1 });
 
   response.json(blog);
 });
@@ -64,18 +69,35 @@ blogsRouter.get('/:id', middleware.userExtractor, async (request, response) => {
 blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   const { title, author, url, likes, user } = request.body;
 
+  const blog = await Blog.findById(request.params.id);
+  const comments = blog.comments;
+
   const updatedBlog = await Blog.findByIdAndUpdate(
     request.params.id,
-    { title, author, url, likes, user },
+    { title, author, url, likes, user, comments },
     { new: true, runValidators: true }
-  );
+  )
+    .populate('user', {
+      username: 1,
+      name: 1,
+    })
+    .populate('comments', { content: 1 });
 
-  const populatedBlog = await updatedBlog.populate('user', {
-    username: 1,
-    name: 1,
-  });
+  response.json(updatedBlog);
+});
 
-  response.json(populatedBlog);
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const { content } = request.body;
+
+  const blog = await Blog.findById(request.params.id);
+
+  const comment = new Comment({ content });
+
+  const savedComment = await comment.save();
+  blog.comments = blog.comments.concat(savedComment._id);
+  await blog.save();
+
+  response.status(201).json(savedComment);
 });
 
 module.exports = blogsRouter;

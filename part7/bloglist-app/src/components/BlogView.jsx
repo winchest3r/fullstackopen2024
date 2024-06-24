@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { initializeBlogs, likeBlog, removeBlog } from '../slices/blogsSlice';
 
+import Comments from './Comments';
+
 const BlogView = () => {
   const dispatch = useDispatch();
   const loggedUser = useSelector(({ loggedUser }) => loggedUser);
@@ -25,6 +27,7 @@ const BlogView = () => {
   const handleRemove = () => {
     if (window.confirm('Remove blog ' + blog.title)) {
       dispatch(removeBlog(blog));
+      navigate('/');
     }
   };
 
@@ -48,6 +51,7 @@ const BlogView = () => {
       ) : (
         <button onClick={handleRemove}>remove</button>
       )}
+      <Comments />
     </>
   );
 };

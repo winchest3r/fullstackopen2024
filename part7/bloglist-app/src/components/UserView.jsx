@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useMatch } from 'react-router-dom';
+import { useMatch, Link } from 'react-router-dom';
 
 import userService from '../services/users';
 
@@ -28,7 +28,9 @@ const UserView = () => {
           <h3>added blogs</h3>
           <ul>
             {user.blogs.map((b) => (
-              <li key={b.id}>{b.title}</li>
+              <li key={b.id}>
+                <Link to={`/blogs/${b.id}`}>{b.title}</Link>
+              </li>
             ))}
           </ul>
         </>

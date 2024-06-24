@@ -71,6 +71,19 @@ export const removeBlog = (blog) => async (dispatch) => {
   }
 };
 
+export const addComment = (blog, content) => async (dispatch) => {
+  try {
+    const comment = await blogService.addComment(blog.id, content);
+    const blogWithComment = {
+      ...blog,
+      comments: blog.comments.concat(comment),
+    };
+    dispatch(replaceBlog(blogWithComment));
+  } catch (exception) {
+    setNotification(exception.response.data.error, 'error');
+  }
+};
+
 export const { addBlog, setBlogs, replaceBlog, remove } = blogsSlice.actions;
 
 export default blogsSlice.reducer;
