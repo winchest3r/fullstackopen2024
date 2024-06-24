@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Box } from '@chakra-ui/react';
 
 import { initializeBlogs } from '../slices/blogsSlice';
 
@@ -25,14 +26,14 @@ const Bloglist = () => {
   };
 
   return (
-    <>
+    <Box>
       {blogs.map((b) => (
         <Blog key={b.id} blog={b} />
       ))}
       <Togglable buttonLabel={'new blog'} ref={bloglistRef}>
         <BlogForm toggleVisibility={handleBlogFormVisibility} />
       </Togglable>
-    </>
+    </Box>
   );
 };
 

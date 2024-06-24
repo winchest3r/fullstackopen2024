@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useMatch, Link } from 'react-router-dom';
+import {
+  Text,
+  Heading,
+  UnorderedList,
+  ListItem,
+  Divider,
+  Box,
+} from '@chakra-ui/react';
 
 import userService from '../services/users';
 
@@ -15,27 +23,27 @@ const UserView = () => {
   }, [match.params.id]);
 
   if (!user) {
-    return <>cannot find a user</>;
+    return <Text>cannot find a user</Text>;
   }
 
   return (
-    <>
-      <h2>{user.name}</h2>
+    <Box>
+      <Heading m={4}>{user.name}</Heading>
+      <Divider mb={4} />
       {user.blogs.length === 0 ? (
-        <h3>no blogs</h3>
+        <Text>no blogs</Text>
       ) : (
         <>
-          <h3>added blogs</h3>
-          <ul>
+          <UnorderedList>
             {user.blogs.map((b) => (
-              <li key={b.id}>
+              <ListItem key={b.id}>
                 <Link to={`/blogs/${b.id}`}>{b.title}</Link>
-              </li>
+              </ListItem>
             ))}
-          </ul>
+          </UnorderedList>
         </>
       )}
-    </>
+    </Box>
   );
 };
 

@@ -13,7 +13,7 @@ export const notificationSlice = createSlice({
   },
 });
 
-export const setNotification = (message, type = 'info') => {
+export const setNotification = (message, type = 'success') => {
   return (dispatch) => {
     dispatch(changeNotification({ type, message }));
     setTimeout(() => {

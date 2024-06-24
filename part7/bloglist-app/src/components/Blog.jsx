@@ -1,21 +1,31 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Box, Flex, Spacer, Text } from '@chakra-ui/react';
 
 const Blog = ({ blog }) => {
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 5,
+  const navigate = useNavigate();
+
+  const handleLink = (id) => () => {
+    navigate(`/blogs/${id}`);
   };
+
   return (
-    <div style={blogStyle}>
-      <Link to={`/blogs/${blog.id}`}>
-        {blog.title} - {blog.author}
-      </Link>
-    </div>
+    <Box
+      borderWidth="1px"
+      borderRadius="lg"
+      onClick={handleLink(blog.id)}
+      _hover={{ bg: 'aliceblue' }}
+      cursor="pointer"
+      p="2"
+    >
+      <Flex>
+        <Text>
+          {blog.title} - {blog.author}
+        </Text>
+        <Spacer />
+        <Text>{blog.likes}🙂</Text>
+      </Flex>
+    </Box>
   );
 };
 

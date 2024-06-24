@@ -1,6 +1,16 @@
 import { useEffect } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import {
+  Text,
+  Heading,
+  Button,
+  Divider,
+  Link,
+  HStack,
+  Box,
+} from '@chakra-ui/react';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 import { initializeBlogs, likeBlog, removeBlog } from '../slices/blogsSlice';
 
@@ -36,23 +46,35 @@ const BlogView = () => {
   }
 
   return (
-    <>
-      <h2>{blog.title}</h2>
-      <div>
-        <a href={blog.url}>{blog.url}</a>
-      </div>
-      <div>
-        {blog.likes} likes
-        <button onClick={handleLikes}>like</button>
-      </div>
-      <div>added by {blog.user.name}</div>
-      {loggedUser.username !== blog.user.username ? (
-        ''
-      ) : (
-        <button onClick={handleRemove}>remove</button>
-      )}
+    <Box>
+      <Heading m={4}>{blog.title}</Heading>
+      <Divider mb={4} />
+      <Link href={blog.url} isExternal>
+        {blog.url} <ExternalLinkIcon mx="2px" />
+      </Link>
+      <HStack>
+        <Text>{blog.likes} likes</Text>
+        <Button
+          colorScheme="red"
+          variant="outline"
+          onClick={handleLikes}
+          size="xs"
+        >
+          ❤️
+        </Button>
+      </HStack>
+      <HStack>
+        <Text>added by {blog.user.name}</Text>
+        {loggedUser.username !== blog.user.username ? (
+          ''
+        ) : (
+          <Button size="xs" onClick={handleRemove}>
+            remove
+          </Button>
+        )}
+      </HStack>
       <Comments />
-    </>
+    </Box>
   );
 };
 

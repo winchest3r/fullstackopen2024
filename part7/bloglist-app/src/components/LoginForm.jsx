@@ -1,5 +1,14 @@
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import {
+  FormControl,
+  FormLabel,
+  Input,
+  Button,
+  Stack,
+  Box,
+} from '@chakra-ui/react';
 
 import { setLoggedUser } from '../slices/loggedUserSlice';
 import { setNotification } from '../slices/notificationSlice';
@@ -11,14 +20,11 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
   const handleLogin = async (event) => {
     event.preventDefault();
-
-    const username = event.target.username.value;
-    const password = event.target.password.value;
-
-    event.target.username.value = '';
-    event.target.password.value = '';
 
     try {
       const user = await loginService.login({ username, password });
@@ -30,31 +36,33 @@ const LoginForm = () => {
     } catch (exception) {
       dispatch(setNotification(exception.response.data.error, 'error'));
     }
+
+    setUsername('');
+    setPassword('');
   };
 
   return (
-    <>
-      <h2>Log into Bloglist</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <input
+    <Box rounded={'lg'} boxShadow={'lg'} p={8} m={8}>
+      <Stack>
+        <FormControl id="username">
+          <FormLabel>Username</FormLabel>
+          <Input
             type="text"
-            placeholder="username"
-            name="username"
-            data-testid="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
-        </div>
-        <div>
-          <input
+        </FormControl>
+        <FormControl id="password">
+          <FormLabel>Password</FormLabel>
+          <Input
             type="password"
-            placeholder="password"
-            name="password"
-            data-testid="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
-        </div>
-        <button type="submit">login</button>
-      </form>
-    </>
+        </FormControl>
+        <Button onClick={handleLogin}>login</Button>
+      </Stack>
+    </Box>
   );
 };
 
