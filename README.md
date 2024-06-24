@@ -2,4 +2,4 @@
 
 Repository for [Full Stack course](https://fullstackopen.com/en/) exercises.
 
-![certificate-fullstack](https://studies.cs.helsinki.fi/stats/api/certificate/fullstackopen/en/9195e60f56323100420e8571cfd5251a)
+![certificate-fullstack](https://github.com/winchest3r/fullstackopen2024/assets/46186489/85ca1c64-be8f-4118-80c0-6b51bde8dcd3)
