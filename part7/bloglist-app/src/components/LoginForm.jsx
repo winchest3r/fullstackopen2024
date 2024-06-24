@@ -1,4 +1,5 @@
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import { setLoggedUser } from '../slices/loggedUserSlice';
 import { setNotification } from '../slices/notificationSlice';
@@ -8,7 +9,7 @@ import loginService from '../services/login';
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const loggedUser = useSelector(({ loggedUser }) => loggedUser);
+  const navigate = useNavigate();
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -25,28 +26,11 @@ const LoginForm = () => {
       dispatch(setLoggedUser(user));
       blogService.setToken(user.token);
       dispatch(setNotification(`welcome, ${user.name}`));
+      navigate('/');
     } catch (exception) {
       dispatch(setNotification(exception.response.data.error, 'error'));
     }
   };
-
-  const handleLogout = () => {
-    window.localStorage.removeItem('loggedUser');
-    dispatch(setLoggedUser(null));
-    blogService.setToken('');
-    dispatch(setNotification('you are successfully logged out'));
-  };
-
-  if (loggedUser) {
-    return (
-      <>
-        <p>
-          {loggedUser.name} is logged in
-          <button onClick={handleLogout}>logout</button>
-        </p>
-      </>
-    );
-  }
 
   return (
     <>
