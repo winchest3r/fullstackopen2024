@@ -1,0 +1,29 @@
+{
+  "name": "library-graphql",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/winchest3r/fullstackopen2024.git"
+  },
+  "author": "Evgenii Uglanov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/winchest3r/fullstackopen2024/issues"
+  },
+  "homepage": "https://github.com/winchest3r/fullstackopen2024#readme",
+  "dependencies": {
+    "@apollo/server": "^4.10.4",
+    "graphql": "^16.9.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4",
+    "prettier": "^3.3.2"
+  }
+}
