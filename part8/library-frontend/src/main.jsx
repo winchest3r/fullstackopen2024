@@ -1,17 +1,36 @@
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import {
+  ApolloClient,
+  ApolloProvider,
+  InMemoryCache,
+  createHttpLink,
+} from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 
 import Root from './routes/root';
 import ErrorPage from './components/ErrorPage';
 import Authors from './components/Authors';
 import Books from './components/Books';
 import AddBookForm from './components/AddBookForm';
+import Logout from './components/Logout';
 
-const graphqlUri = 'http://localhost:4000';
+const httpLink = createHttpLink({
+  uri: 'http://localhost:4000',
+});
+
+const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem('library-user-token');
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : null,
+    },
+  };
+});
 
 const client = new ApolloClient({
-  uri: graphqlUri,
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
 
@@ -32,6 +51,10 @@ const router = createBrowserRouter([
       {
         path: 'addbook',
         element: <AddBookForm />,
+      },
+      {
+        path: 'logout',
+        element: <Logout />,
       },
     ],
   },

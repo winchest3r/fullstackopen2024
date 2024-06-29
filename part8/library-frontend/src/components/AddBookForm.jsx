@@ -12,6 +12,10 @@ const AddBookForm = () => {
   const [genres, setGenres] = useState([]);
 
   const [createBook] = useMutation(ADD_BOOK, {
+    onError: (error) => {
+      const messages = error.graphQLErrors.map((e) => e.message).join('\n');
+      console.log(messages);
+    },
     refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
   });
 
@@ -21,7 +25,12 @@ const AddBookForm = () => {
     const intPublished = Number(published);
 
     createBook({
-      variables: { title, author, published: intPublished, genres },
+      variables: {
+        title,
+        author,
+        published: intPublished,
+        genres,
+      },
     });
 
     setTitle('');

@@ -1,12 +1,21 @@
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+
 import Links from '../components/Links';
+import LoginForm from '../components/LoginForm';
 
 const Root = () => {
+  const [token, setToken] = useState(null);
+
   return (
     <div>
-      <Links />
+      <Links token={token} />
       <div>
-        <Outlet />
+        {token ? (
+          <Outlet context={[token, setToken]} />
+        ) : (
+          <LoginForm setToken={setToken} />
+        )}
       </div>
     </div>
   );

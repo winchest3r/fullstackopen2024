@@ -30,7 +30,20 @@ const SetBirthYearForm = () => {
   const result = useQuery(ALL_AUTHORS);
 
   const [changeBirthYear] = useMutation(EDIT_AUTHOR, {
-    refetchQueries: [{ query: ALL_AUTHORS }],
+    onError: (error) => {
+      const messages = error.graphQLErrors.map((e) => e.message).join('\n');
+      console.log(messages);
+    },
+    update: (cache, response) => {
+      cache.updateQuery({ query: ALL_AUTHORS }, ({ allAuthors }) => {
+        const updatedAuthor = response.data.editAuthor;
+        return {
+          allAuthors: allAuthors.map((a) =>
+            a.id !== updatedAuthor.id ? a : updatedAuthor
+          ),
+        };
+      });
+    },
   });
 
   const handleSubmit = (event) => {
