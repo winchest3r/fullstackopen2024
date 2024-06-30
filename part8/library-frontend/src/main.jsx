@@ -14,6 +14,7 @@ import Authors from './components/Authors';
 import Books from './components/Books';
 import AddBookForm from './components/AddBookForm';
 import Logout from './components/Logout';
+import RecommendedBooks from './components/RecommendedBooks';
 
 const httpLink = createHttpLink({
   uri: 'http://localhost:4000',
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: 'logout',
         element: <Logout />,
+      },
+      {
+        path: 'recommend',
+        element: <RecommendedBooks />,
       },
     ],
   },
