@@ -1,16 +1,13 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
 
-import { ALL_BOOKS } from '../queries';
+import { ALL_BOOKS, ALL_GENRES } from '../queries';
 import BooksTable from './BooksTable';
 
-const BooksFilterSelector = ({ genres, setFilterGenre }) => {
+const BooksFilterSelector = ({ genres, currentGenre, handleOptions }) => {
   return (
     <div>
-      <select
-        defaultValue="all genres"
-        onChange={(e) => setFilterGenre(e.target.value)}
-      >
+      <select defaultValue={currentGenre} onChange={handleOptions}>
         <option value="all genres">all genres</option>
         {genres.map((genre) => (
           <option key={genre} value={genre}>
@@ -23,40 +20,41 @@ const BooksFilterSelector = ({ genres, setFilterGenre }) => {
 };
 
 const Books = () => {
-  const [filterGenre, setFilterGenre] = useState('all genres');
+  const [filterOptions, setFilterOptions] = useState({});
 
-  const result = useQuery(ALL_BOOKS);
+  const result = useQuery(ALL_BOOKS, filterOptions);
 
-  if (result.loading) {
+  const genresResult = useQuery(ALL_GENRES);
+
+  if (result.loading || genresResult.loading) {
     return <div>loading...</div>;
   }
 
-  const genres = [
-    ...new Set(
-      result.data.allBooks
-        .map((b) => b.genres)
-        .flat()
-        .map((g) => g.name)
-    ),
-  ];
+  const genres = genresResult.data.allGenres.map((g) => g.name);
 
-  const filteredBooks = result.data.allBooks.filter((book) => {
-    if (!filterGenre || filterGenre === 'all genres') {
-      return true;
+  const handleFilterOptions = (event) => {
+    if (event.target.value === 'all genres') {
+      setFilterOptions({});
+    } else {
+      setFilterOptions({
+        variables: {
+          genre: event.target.value,
+        },
+      });
     }
-    for (const { name } of book.genres) {
-      if (name === filterGenre) {
-        return true;
-      }
-    }
-    return false;
-  });
+  };
 
   return (
     <div>
       <h2>books</h2>
-      <BooksTable books={filteredBooks} />
-      <BooksFilterSelector genres={genres} setFilterGenre={setFilterGenre} />
+      <BooksTable books={result.data.allBooks} />
+      <BooksFilterSelector
+        genres={genres}
+        currentGenre={
+          filterOptions.variables ? filterOptions.variables.genre : 'all genres'
+        }
+        handleOptions={handleFilterOptions}
+      />
     </div>
   );
 };

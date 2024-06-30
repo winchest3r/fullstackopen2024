@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation } from '@apollo/client';
 
-import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS } from '../queries';
+import { ADD_BOOK, ALL_AUTHORS, ALL_GENRES } from '../queries';
 
 const AddBookForm = () => {
   const [title, setTitle] = useState('');
@@ -16,7 +16,7 @@ const AddBookForm = () => {
       const messages = error.graphQLErrors.map((e) => e.message).join('\n');
       console.log(messages);
     },
-    refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
+    refetchQueries: [{ query: ALL_AUTHORS }, { query: ALL_GENRES }],
   });
 
   const handleSubmit = (event) => {
