@@ -13,7 +13,6 @@ const cors = require('cors');
 const http = require('http');
 
 const mongoose = require('mongoose');
-mongoose.set('debug', true);
 
 const jwt = require('jsonwebtoken');
 

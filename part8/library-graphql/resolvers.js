@@ -71,7 +71,7 @@ const resolvers = {
         });
       }
 
-      let author = await Author.find({ name: args.author });
+      let author = await Author.findOne({ name: args.author });
       if (!author) {
         const newAuthor = new Author({ name: args.author, books: [] });
         try {
@@ -96,12 +96,11 @@ const resolvers = {
       });
 
       try {
-        const addedBook = await book.save();
-        author = await Author.findById(addedBook.author);
+        await book.save();
         const updatedAuthor = {
           name: author.name,
           born: author.born,
-          books: author.books.concat(addedBook._id),
+          books: author.books.concat(book._id),
         };
         await Author.findByIdAndUpdate(author._id, updatedAuthor);
       } catch (error) {
