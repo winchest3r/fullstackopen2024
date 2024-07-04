@@ -1,3 +1,6 @@
 [submodule "part3/phonebook-backend"]
 	path = part3/phonebook-backend
 	url = https://github.com/winchest3r/fullstackopen2024-part3-phonebook
+[submodule "part9/patientor/frontend"]
+	path = part9/patientor/frontend
+	url = https://github.com/winchest3r/fullstackopen2024-patientor
