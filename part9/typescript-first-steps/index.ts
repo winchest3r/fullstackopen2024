@@ -4,6 +4,7 @@ import { calculateBmi } from './bmiCalculator';
 import { calculateExercises } from './exerciseCalculator';
 
 const app = express();
+app.use(express.json());
 
 app.get('/hello', (_request, response) => {
   response.send('Hello Full Stack!');
@@ -44,6 +45,17 @@ app.post('/exercises', (request, response) => {
 
   if (!daily_exercises || !target) {
     return response.status(400).json({ error: 'parameters missing'});
+  }
+
+  if (isNaN(Number(target))) {
+    return response.status(400).json({ error: 'target should be a number'});
+  }
+
+  for (const val of daily_exercises) {
+    console.log(val);
+    if (isNaN(Number(val))) {
+      return response.status(400).json({ error: 'all daily exercises should be numbers'});
+    }
   }
 
   try {
