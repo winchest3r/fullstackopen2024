@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 
 import patientsData from '../../data/patientsData';
 
-import { Patient, NewPatientEntry } from '../types';
+import { Patient, NewPatient } from '../types';
 
 const getData = (): Patient[] => {
   return patientsData;
@@ -25,7 +25,7 @@ const findById = (id: string): Patient | undefined => {
   return entry;
 };
 
-const addData = (object: NewPatientEntry): Patient => {
+const addData = (object: NewPatient): Patient => {
   /* 
     eslint-disable 
     @typescript-eslint/no-unsafe-assignment, 

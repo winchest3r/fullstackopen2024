@@ -1,4 +1,4 @@
-import { Gender, NewPatientEntry, NewPatient } from "./types";
+import { Gender, NewPatient, EntryWithoutId } from "./types";
 
 const isString = (str: unknown): str is string => {
   return typeof str === 'string' || str instanceof String;
@@ -13,8 +13,8 @@ const isSsn = (ssn: string): boolean => {
   return regex.test(ssn);
 };
 
-const isGender = (gender: string): gender is Gender => {
-  return Object.values(Gender).map(v => v.toString()).includes(gender);
+const isGender = (gender: unknown): gender is Gender => {
+  return Object.values(Gender).find(g => g === gender) !== undefined;
 };
 
 const parseName = (name: unknown): string => {
@@ -39,7 +39,7 @@ const parseSsn = (ssn: unknown): string => {
 };
 
 const parseGender = (gender: unknown): Gender => {
-  if (!isString(gender) || !isGender(gender)) {
+  if (!isGender(gender)) {
     throw new Error('Incorrect gender: ' + gender);
   }
   return gender;
@@ -52,7 +52,46 @@ const parseOccupation = (occupation: unknown): string => {
   return occupation;
 };
 
-export const toNewPatient = (object: unknown): NewPatientEntry => {
+const assetNever = (value: never): never => {
+  throw new Error(
+    `Unhandled discriminated union member: ${JSON.stringify(value)}`
+  );
+};
+
+const parseEntries = (entries: unknown): EntryWithoutId[] => {
+  if (!Array.isArray(entries)) {
+    throw new Error('Incorrect entries data');
+  }
+
+  for (const entry of entries) {
+    if (!entry || typeof entry !== 'object') {
+      throw new Error('Incorrect entry data');
+    }
+  
+    if (!('date' in entry) || !('description' in entry) || !('specialist' in entry)) {
+      throw new Error('Incorrect base entry data: missing field');
+    }
+
+    const checkedEntry = entry as EntryWithoutId;
+
+    if ('type' in checkedEntry) {
+      switch (checkedEntry.type) {
+        case 'HealthCheck':
+          break;
+        case 'Hospital':
+          break;
+        case 'OccupationalHealthcare':
+          break;
+        default:
+          return assetNever(checkedEntry);
+      }
+    }
+  }
+
+  return entries as EntryWithoutId[];
+};
+
+export const toNewPatient = (object: unknown): NewPatient => {
   if (!object || typeof object !== 'object') {
     throw new Error('Incorrect or missing data');
   }
@@ -70,7 +109,7 @@ export const toNewPatient = (object: unknown): NewPatientEntry => {
         ssn: parseSsn(object.ssn),
         gender: parseGender(object.gender),
         occupation: parseOccupation(object.occupation),
-        entries: []
+        entries: 'entries' in object ? parseEntries(object.entries) : [],
       };
 
       return newEntry;
