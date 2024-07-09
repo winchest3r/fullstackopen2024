@@ -132,6 +132,9 @@ const parseDescription = (description: unknown): string => {
   if (!isString(description)) {
     throw new Error('Incorrect description: ' + description);
   }
+  if (description.length === 0) {
+    throw new Error('Description is empty');
+  }
   return description;
 };
 
@@ -146,12 +149,18 @@ const parseSpecialist = (specialist: unknown): string => {
   if (!isString(specialist)) {
     throw new Error('Incorrect description: ' + specialist);
   }
+  if (specialist.length === 0) {
+    throw new Error('Specialist is empty');
+  }
   return specialist;
 };
 
 const parseType = (type: unknown): EntryType => {
   if (!isString(type)) {
     throw new Error('Incorrect type: ' + type);
+  }
+  if (type.length === 0) {
+    throw new Error('Type is empty');
   }
   return type as EntryType;
 };
@@ -180,12 +189,18 @@ const parseCriteria = (criteria: unknown): string => {
   if (!isString(criteria)) {
     throw new Error('Incorrect criteria: ' + criteria);
   }
+  if (criteria.length === 0) {
+    throw new Error('Criteria is empty');
+  }
   return criteria;
 };
 
 const parseEmployer = (employer: unknown): string => {
   if (!isString(employer)) {
     throw new Error('Incorrect employer: ' + employer);
+  }
+  if (employer.length === 0) {
+    throw new Error('Employer is empty');
   }
   return employer;
 };
