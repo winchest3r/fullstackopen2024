@@ -7,3 +7,6 @@
 [submodule "part10"]
 	path = part10
 	url = https://github.com/winchest3r/rate-repository-app
+[submodule "part11"]
+	path = part11
+	url = https://github.com/winchest3r/full-stack-open-pokedex
