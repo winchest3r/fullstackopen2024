@@ -1,0 +1,15 @@
+Script started on 2024-08-16 15:34:22+05:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="108" LINES="28"]
+docker compose -f docker-compose.dev.yml up -d
+docker exec -it todo-backend-mongo-1 mongosh -u root -p example
+show dbs
+use the_database
+show collections
+db.todos.find({})
+db.todos.insertOne({
+text: 'Increase the number of tools in my tool belt',
+done: false
+})
+db.todos.find({})
+exit
+exit
+Script done on 2024-08-16 15:38:29+05:00 [COMMAND_EXIT_CODE="0"]
