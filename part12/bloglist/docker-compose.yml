@@ -9,13 +9,11 @@ services:
       - ./backend/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
       - mongo_data:/data/db
   server:
-    image: bloglist-backend-dev
-    build:
-      context: ./backend
-      dockerfile: dev.Dockerfile
+    image: bloglist-backend
+    build: ./backend
     volumes:
-      - ./backend:/usr/src/server
-    container_name: backend-backend-dev
+      - ./backend:/usr/src/app
+    container_name: backend-backend
     environment:
       MONGODB_URL: mongodb://the_username:the_password@mongo:27017/the_database
       SECRET: /run/secrets/secret
@@ -23,25 +21,14 @@ services:
     command: ['npm', 'run', 'dev']
     depends_on:
       - mongo
-  app:
-    image: bloglist-frontend-dev
-    build:
-      context: .
-      dockerfile: dev.Dockerfile
-    volumes:
-      - ./:/usr/src/app
-    container_name: bloglist-frontend-dev
-    depends_on:
-      - server
   nginx:
-    image: nginx
+    build: .
     volumes:
-      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
       - 8080:80
-    container_name: reverse-proxy
+    container_name: bloglist-frontend
     depends_on:
-      - app
       - server
 volumes:
   mongo_data:

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseUrl = '/api/users';
+const baseUrl = import.meta.env.VITE_BACKEND_URL + 'api/users';
 
 const users = async () => {
   const response = await axios.get(baseUrl);
