@@ -1,0 +1,49 @@
+services:
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: the_database
+    volumes:
+      - ./backend/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - mongo_data:/data/db
+  server:
+    image: bloglist-backend-dev
+    build:
+      context: ./backend
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./backend:/usr/src/server
+    container_name: todo-backend-dev
+    environment:
+      MONGODB_URL: mongodb://the_username:the_password@mongo:27017/the_database
+      TEST_MONGODB_URL: mongodb://the_username:the_password@mongo:27017/test_the_database
+      SECRET: /run/secrets/secret
+      PORT: 3003
+    command: ['npm', 'run', 'dev']
+    depends_on:
+      - mongo
+  app:
+    image: bloglist-frontend-dev
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./:/usr/src/app
+    container_name: bloglist-frontend-dev
+    depends_on:
+      - server
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8080:80
+    container_name: reverse-proxy
+    depends_on:
+      - app
+      - server
+volumes:
+  mongo_data:
+    driver: local
