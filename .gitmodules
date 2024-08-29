@@ -10,3 +10,6 @@
 [submodule "part11"]
 	path = part11
 	url = https://github.com/winchest3r/full-stack-open-pokedex
+[submodule "part13"]
+	path = part13
+	url = https://github.com/winchest3r/fullstackopen2024-bloglist-rel-db
